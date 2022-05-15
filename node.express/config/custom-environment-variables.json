@@ -1,0 +1,4 @@
+{
+    "jwt":"courses_jwt_env_var",
+    "password":"NODE_ENV"
+}

@@ -1,6 +1,10 @@
 const { Course, validateCourse } = require("../model/course");
 const mongoose = require("mongoose");
 const express = require("express");
+const authMiddleware = require('../middleware/auth');
+const adminMiddleware = require('../middleware/admin');
+
+
 const router = express.Router();
 
 //get list of cources
@@ -18,7 +22,12 @@ router.get("/:id", async (req, res) => {
 });
 
 //add new course
-router.post("/", async (req, res) => {
+
+//this route uses a custom middleware
+//path the auth middleware to be executed before the post action
+router.post("/",authMiddleware, async (req, res) => {
+  console.log(req.user); //check the user role 
+ 
   const { error } = validateCourse(req.body);
 
   if (error) return res.status(404).send(error.details);
@@ -55,7 +64,7 @@ router.put("/:id", async (req, res) => {
 });
 
 //delete existing course
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",[authMiddleware,adminMiddleware], async (req, res) => {
   const course = await Course.findByIdAndDelete(req.params.id);
   if (!course) return res.status(404).send("Course not found");
 
